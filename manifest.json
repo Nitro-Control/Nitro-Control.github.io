@@ -1,0 +1,14 @@
+{
+  "name": "අවුරුදු IoT Pro",
+  "version": "1.0",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "firmware/sketch_mar24f.cpp.bootloader.bin", "offset": 4096 },
+        { "path": "firmware/sketch_mar24f.cpp.partitions.bin", "offset": 32768 },
+        { "path": "firmware/sketch_mar24f.cpp.bin", "offset": 65536 }
+      ]
+    }
+  ]
+}

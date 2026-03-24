@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>අවුරුදු IoT Pro Installer 🧨</title>
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web-install-button.js/?module"></script>
+    <style>
+        :root { --primary: #ff4757; --gold: #ffa502; --bg: #0b0c10; --card: #1f2833; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .installer-card { background: var(--card); padding: 40px; border-radius: 30px; border: 1px solid #444; max-width: 450px; width: 90%; text-align: center; position: relative; z-index: 10; }
+        h1 { color: var(--gold); margin-bottom: 20px; }
+        .loader-ring { width: 60px; height: 60px; border: 5px solid #333; border-top: 5px solid var(--gold); border-radius: 50%; margin: 20px auto; display: none; animation: spin 1s infinite linear; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .sparkler-wrap { width: 100%; height: 12px; background: #111; border-radius: 10px; margin: 30px auto; position: relative; display: none; border: 1px solid #333; }
+        .sparkler-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #555, #fff); border-radius: 10px; position: relative; transition: width 0.2s; }
+        .spark-head { position: absolute; right: -20px; top: -25px; width: 50px; height: 50px; background: radial-gradient(circle, #fff 10%, #ffcc00 40%, #ff4757 70%, transparent 80%); animation: flicker 0.1s infinite; }
+        @keyframes flicker { 0% { transform: scale(1); } 100% { transform: scale(1.4); } }
+        .btn-flash { padding: 18px 35px; background: var(--primary); color: white; border: none; border-radius: 15px; font-weight: bold; cursor: pointer; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3); }
+        #status-msg { margin: 20px 0; font-weight: 500; font-size: 1.1rem; color: #66fcf1; }
+        #fireworks { position: fixed; inset: 0; pointer-events: none; z-index: 5; display: none; }
+    </style>
+</head>
+<body>
+    <canvas id="fireworks"></canvas>
+    <div class="installer-card">
+        <h1>අවුරුදු IoT Pro 🧨</h1>
+        <div id="loader" class="loader-ring"></div>
+        <div id="status-msg">බෝඩ් එක සම්බන්ධ කර පහත බොත්තම ඔබන්න.</div>
+        <div class="sparkler-wrap" id="sparkler">
+            <div class="sparkler-fill" id="p-bar"><div class="spark-head"></div></div>
+        </div>
+        <div id="btn-wrap">
+            <esp-web-install-button manifest="./manifest.json">
+                <button slot="activate" class="btn-flash">CONNECT & FLASH</button>
+            </esp-web-install-button>
+        </div>
+    </div>
+    <script>
+        const installBtn = document.querySelector("esp-web-install-button");
+        const statusMsg = document.getElementById("status-msg");
+        const loader = document.getElementById("loader");
+        const sparkler = document.getElementById("sparkler");
+        const pBar = document.getElementById("p-bar");
+        const btnWrap = document.getElementById("btn-wrap");
+        const canvas = document.getElementById("fireworks");
+        const ctx = canvas.getContext("2d");
+
+        installBtn.addEventListener("state-changed", (ev) => {
+            if(ev.detail.state === "INITIALIZING") {
+                btnWrap.style.display = "none";
+                loader.style.display = "block";
+                statusMsg.innerText = "බෝඩ් එක පරීක්ෂා කරමින්...";
+            }
+        });
+
+        installBtn.addEventListener("install-start", () => {
+            loader.style.display = "none";
+            sparkler.style.display = "block";
+            statusMsg.innerText = "නිලා කූර පත්තු වෙමින් පවතී...";
+        });
+
+        installBtn.addEventListener("install-progress", (e) => {
+            const progress = e.detail.progress;
+            pBar.style.width = progress + "%";
+            statusMsg.innerText = "යාවත්කාලීන වෙමින්: " + progress + "%";
+            if(progress >= 100) {
+                setTimeout(() => {
+                    sparkler.style.display = "none";
+                    statusMsg.innerHTML = "<b style='color:#ffa502'>🧨 සාර්ථකයි! අවුරුදු උදාවට සූදානම්!</b>";
+                    explode();
+                }, 500);
+            }
+        });
+
+        function explode() {
+            canvas.style.display = "block";
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            let parts = [];
+            for(let i=0; i<100; i++) {
+                parts.push({ x: canvas.width/2, y: canvas.height/2, vx: (Math.random()-0.5)*20, vy: (Math.random()-0.5)*20, c: `hsl(${Math.random()*360},100%,50%)`, a: 1 });
+            }
+            function draw() {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                parts.forEach(p => {
+                    p.x+=p.vx; p.y+=p.vy; p.vy+=0.2; p.a-=0.01;
+                    ctx.globalAlpha = p.a; ctx.fillStyle = p.c;
+                    ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2); ctx.fill();
+                });
+                if(parts[0].a > 0) requestAnimationFrame(draw);
+            }
+            draw();
+        }
+    </script>
+</body>
+</html>
