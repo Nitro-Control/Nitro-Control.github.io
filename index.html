@@ -2,61 +2,230 @@
 <html lang="si">
 <head>
     <meta charset="utf-8" />
-    <title>Nitro-Flash Hyper-Real Pro v35.0</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nitro-Control Pro Installer</title>
     
-    <link rel="stylesheet" href="style.css">
-    
-    <script type="module" src="https://unpkg.com/esp-web-tools@8.0.1/dist/web/install-button.js?module"></script>
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
+
+        :root {
+            /* ප්‍රධාන වර්ණ සැකසුම් - මෙතනින් ඔබට ඕනෑම පාටක් වෙනස් කළ හැකිය */
+            --primary-glow: #ff003c;       /* Nitro Red */
+            --secondary-glow: #00f2fe;     /* Cyan accent */
+            --bg-color: #050505;           /* තද කළු පසුබිම */
+            
+            /* Install Menu (Dialog) එකේ පාටවල් පාලනය */
+            --mdc-theme-surface: #121212;        /* Menu Background */
+            --mdc-theme-on-surface: #ffffff;     /* Menu Text */
+            --mdc-theme-primary: #ff003c;        /* Progress bar / Primary buttons */
+            --mdc-theme-on-primary: #ffffff;     /* Text on primary buttons */
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Fireworks Canvas */
+        #fireworks {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        /* මැද ඇති ප්‍රධාන Card එක */
+        .glass-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 60px 40px;
+            border-radius: 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 80px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 0, 60, 0.1);
+            max-width: 450px;
+            width: 90%;
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            font-size: 28px;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .version {
+            color: var(--primary-glow);
+            font-size: 12px;
+            letter-spacing: 5px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        /* Install Button එකේ පෙනුම */
+        esp-web-install-button {
+            --esp-tools-button-color: var(--primary-glow);
+            --esp-tools-button-text-color: #ffffff;
+            --esp-tools-button-border-radius: 50px;
+            display: inline-block;
+            transform: scale(1.4);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 0 15px rgba(255, 0, 60, 0.5));
+        }
+
+        esp-web-install-button:hover {
+            transform: scale(1.55);
+            filter: drop-shadow(0 0 25px var(--primary-glow));
+        }
+
+        .footer-note {
+            margin-top: 40px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Browser Support Error Message */
+        [slot="unsupported"] {
+            color: #ff4b2b;
+            font-size: 13px;
+            max-width: 250px;
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
-<canvas id="fg-canvas"></canvas>
+    <canvas id="fireworks"></canvas>
 
-<div class="center-ui" id="ui-wrapper">
-    
-    <div id="menu-box">
-        <button id="start-btn" onclick="initiateFlash()">START INSTALLATION</button>
+    <div class="glass-container">
+        <h1>NITRO CONTROL</h1>
+        <div class="version">PRO V1.0</div>
         
-        <div class="sub-buttons">
-            <a href="firmware/nitro_pro.zip" class="btn-secondary">📁 DOWNLOAD BIN FILES (ZIP)</a>
-            
-            <a href="https://silabs.com/developers/usb-to-uart-bridge-vcp-drivers" target="_blank" class="btn-secondary">📥 INSTALL USB DRIVERS</a>
-        </div>
-    </div>
-
-    <div id="sparkler-stage">
-        <div class="sparkler-unit">
-            <div class="stick-assembly">
-                <div class="iron-core">
-                    <div class="burnt-residue" id="residue"></div>
-                    
-                    <div class="fuel-coating" id="fuel">
-                        <div class="burning-point" id="igniter"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <p>ඔබේ ESP32 උපාංගය USB හරහා සම්බන්ධ කරන්න. <br>ඉන්පසු පහත බොත්තම ඔබා ස්ථාපනය අරඹන්න.</p>
         
-        <div class="progress-container">
-            <div class="percentage" id="pct">0%</div>
-            <div class="status-msg">Firmware Uploading...</div>
-        </div>
-    </div>
-</div>
+        <esp-web-install-button 
+            manifest="manifest.json">
+            <span slot="unsupported">
+                ⚠️ ඔබේ Browser එක මෙයට සහය නොදක්වයි. <br> කරුණාකර Google Chrome භාවිතා කරන්න.
+            </span>
+        </esp-web-install-button>
 
-<h1 id="success-text">SUCCESSFUL</h1>
-
-<div id="wifi-container">
+        <div class="footer-note">Ready for Wi-Fi Configuration</div>
     </div>
 
-<esp-web-install-button id="installer" manifest="./manifest.json">
-    <button slot="activate" style="display:none">FLASH</button>
-    <button slot="show-wifi" style="display:none">📶 CONNECT NITRO-WIFI</button>
-</esp-web-install-button>
+    <script>
+        /* Fireworks Animation Script */
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let rockets = [];
 
-<script src="script.js"></script>
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
 
+        class Rocket {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height;
+                this.speed = 3 + Math.random() * 5;
+                this.targetY = Math.random() * (canvas.height / 2);
+                this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                this.exploded = false;
+            }
+            update() {
+                this.y -= this.speed;
+                if (this.y <= this.targetY) {
+                    this.explode();
+                    return true;
+                }
+                return false;
+            }
+            explode() {
+                for (let i = 0; i < 50; i++) {
+                    particles.push(new Particle(this.x, this.y, this.color));
+                }
+            }
+            draw() {
+                ctx.fillStyle = "white";
+                ctx.fillRect(this.x, this.y, 2, 4);
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                this.angle = Math.random() * Math.PI * 2;
+                this.force = Math.random() * 5;
+                this.vx = Math.cos(this.angle) * this.force;
+                this.vy = Math.sin(this.angle) * this.force;
+                this.alpha = 1;
+                this.decay = 0.01 + Math.random() * 0.02;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                this.vy += 0.05; // gravity
+                this.alpha -= this.decay;
+            }
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function loop() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (Math.random() < 0.04) rockets.push(new Rocket());
+
+            rockets = rockets.filter(r => {
+                const exploded = r.update();
+                if (!exploded) r.draw();
+                return !exploded;
+            });
+
+            particles = particles.filter(p => {
+                p.update();
+                p.draw();
+                return p.alpha > 0;
+            });
+
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
 </body>
 </html>

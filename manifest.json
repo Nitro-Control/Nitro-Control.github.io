@@ -1,6 +1,9 @@
 {
-  "name": "අවුරුදු IoT Pro",
+  "name": "Nitro-Control Pro",
   "version": "1.0",
+  "home_assistant_domain": "esphome",
+  "new_install_prompt_erase": true,
+  "new_install_improv_wait_time": 10,
   "builds": [
     {
       "chipFamily": "ESP32",
